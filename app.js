@@ -10,29 +10,85 @@ class Product {
 
 }
 
-class ShoppingCart {
+class ElementAttribute {
+  constructor(attrName, attrValue) {
+    this.name = attrName;
+    this.value = attrValue;
+  }
+}
+
+class Component {
+  constructor(renderHookId, shouldRender = true) { // This is just to check if the data is available to use.
+    this.hookId = renderHookId;
+    if (shouldRender) {
+      this.render();
+    }
+  }
+
+  //This is just added for readability's sake as the 'this.render' method was added so sub classes could use it. Even if we added code in here, the sub-class' version of this will override it.
+  render() {}
+
+  createRootElement(tag, cssClasses, attributes) {
+
+    const rootElement = document.createElement(tag);
+    if (cssClasses) {
+      rootElement.classList.add(cssClasses);
+    }
+    if (attributes && attributes.length > 0) {
+      for (const attr of attributes) {
+        rootElement.setAttribute(attr.name, attr.value);
+      }
+    }
+    document.getElementById(this.hookId).append(rootElement);
+    return rootElement;
+  }
+}
+
+// Can only ever extend from 1 class (inheriting from multiple isn't possible in JS)
+// What this does is it means all objects that are instatiated from the ShoppingCart class also inherit the fields/properties/methods/behaviour from the base class; Component.
+class ShoppingCart extends Component {
   items = [];
+
+  totalAmount() {
+    const sum = this.items.reduce((prevValue, currItem) => {
+      return prevValue + currItem.price
+    }, 0)
+    return sum;
+  }
+
+  // This is needed so we can initiate the 'Component' class and pass in the 'renderHookId' as an argument.
+  // You need to call super() on your parent class (in this case Component) before you start using 'this' keyword in properties in the subclass. 
+  constructor(renderHookId) {
+    super(renderHookId, false);
+    this.orderProducts = () => { // Using an arrow function here as an alternative to binding 'this' as otherwise 'this' will be undefined (because eventlistener)
+      console.log('Ordering...')
+      console.log(this.items)
+    }
+    this.render();
+  }
 
   addProduct(product) {
     this.items.push(product);
-    this.totalOutput.innerHTML = `Total: £${1}`;
+    this.totalOutput.innerHTML = `Total: £${this.totalAmount().toFixed(2)}`;
   }
 
   render() {
-    const cartEl = document.createElement('section')
+    const cartEl = this.createRootElement('section', 'checkout');
     cartEl.innerHTML = `
       <h2>Total: £${0}</h2>
       <button>Order</button>
     `;
-    cartEl.classList.add('checkout');
+    const orderButton = cartEl.querySelector('button');
+    orderButton.addEventListener('click', this.orderProducts);
     this.totalOutput = cartEl.querySelector('h2');
-    return cartEl;
   }
 }
 // Not really used to group data together, but more to do with holding the logic to render a product item.
-class ProductItem {
-  constructor(product) {
+class ProductItem extends Component {
+  constructor(product, renderHookId) {
+    super(renderHookId, false);
     this.product = product;
+    this.render();
   }
 
   addToCart() {
@@ -42,9 +98,7 @@ class ProductItem {
 
   // Not a reserved keyword, you can call it what you like.
   render() {
-    const prodEl = document.createElement('li');
-    prodEl.classList.add('product-item');
-
+    const prodEl = this.createRootElement('li', 'product-item');
     prodEl.innerHTML = `
       <div class="product-item">
         <img src="${this.product.imageURL}" alt="${this.product.title}">
@@ -59,57 +113,65 @@ class ProductItem {
     const addToCartButton = prodEl.querySelector('button');
     // Need to bind 'this' because as we learned, this on an eventlistener belongs to the global window object as that's what called it.
     addToCartButton.addEventListener('click', this.addToCart.bind(this));
-    return prodEl;
   }
 }
 
-class ProductList {
-  products = [
-    new Product(
-      `NULIAJUK // Abstract Whale Tail Acrylic Painting in Blue and Turquoise`,
-      `https://i.etsystatic.com/24718322/r/il/3e7f63/2672457185/il_794xN.2672457185_ozhg.jpg`,
-      `'NULIAJUK' | An original acrylic painting on paper 42cmx29.7cm The painting will be wrapped securely to ensure it will arrive uncreased and safely for you to enjoy in it's new home. Please note that the frame is not included`,
-      55.00
-    ),
-    new Product(
-      `CARIBBEAN SEA // Original Abstract Acrylic Wave Painting in light blue`,
-      `https://i.etsystatic.com/24718322/r/il/0990fe/2672518377/il_794xN.2672518377_ot04.jpg`,
-      `CARIBBEAN SEA' | An original acrylic painting on paper 42cmx29.7cm The painting will be wrapped securely to ensure it will arrive uncreased and safely for you to enjoy in it's new home. Please note that the frame is not included.`,
-      50.00
-    ),
-    new Product(
-      `North Sea // Blue Abstract Wave, Original Acryl Painting on Paper`,
-      `https://i.etsystatic.com/24718322/r/il/91408e/2503773204/il_794xN.2503773204_cf6q.jpg`,
-      `'NORTH SEA' | An original acrylic painting on paper 29,5cmx39cm The painting will be wrapped securely to ensure it will arrive uncreased and safely for you to enjoy in it's new home. Please note that the frame is not included.`,
-      25.00
-    )
-  ];
+class ProductList extends Component {
+  products = [];
+
+  constructor(renderHookId) {
+    super(renderHookId);
+    this.fetchProducts();
+  }
+
+  // This is just to replicate having to wait for data from an API.
+  fetchProducts() {
+    this.products = [
+      new Product(
+        `NULIAJUK // Abstract Whale Tail Acrylic Painting in Blue and Turquoise`,
+        `https://i.etsystatic.com/24718322/r/il/3e7f63/2672457185/il_794xN.2672457185_ozhg.jpg`,
+        `'NULIAJUK' | An original acrylic painting on paper 42cmx29.7cm The painting will be wrapped securely to ensure it will arrive uncreased and safely for you to enjoy in it's new home. Please note that the frame is not included`,
+        55.00
+      ),
+      new Product(
+        `CARIBBEAN SEA // Original Abstract Acrylic Wave Painting in light blue`,
+        `https://i.etsystatic.com/24718322/r/il/0990fe/2672518377/il_794xN.2672518377_ot04.jpg`,
+        `CARIBBEAN SEA' | An original acrylic painting on paper 42cmx29.7cm The painting will be wrapped securely to ensure it will arrive uncreased and safely for you to enjoy in it's new home. Please note that the frame is not included.`,
+        50.00
+      ),
+      new Product(
+        `North Sea // Blue Abstract Wave, Original Acryl Painting on Paper`,
+        `https://i.etsystatic.com/24718322/r/il/91408e/2503773204/il_794xN.2503773204_cf6q.jpg`,
+        `'NORTH SEA' | An original acrylic painting on paper 29,5cmx39cm The painting will be wrapped securely to ensure it will arrive uncreased and safely for you to enjoy in it's new home. Please note that the frame is not included.`,
+        25.00
+      )
+    ];
+    this.renderProducts();
+  }
+
+  renderProducts() {
+    for (const prod of this.products) {
+      new ProductItem(prod, 'prod-list');
+    }
+  }
 
   render() {
-    const prodList = document.createElement('ul');
-    prodList.classList.add('product-list');
-
-    for (const prod of this.products) {
-      const productItem = new ProductItem(prod);
-      const prodEl = productItem.render();
-      prodList.append(prodEl);
+    this.createRootElement('ul', 'product-list', [new ElementAttribute('id', 'prod-list')]);
+    if (this.products && this.products.length > 0) {
+      this.renderProducts();
     }
-    return prodList;
   }
 }
 
 // This brings the logic of both sections (the product list and checkout section together)
 class Shop {
-  render() {
-    const renderHook = document.getElementById('e-comm-app');
-    
-    this.cart = new ShoppingCart();
-    const cartEl = this.cart.render();
-    const productList = new ProductList();
-    const prodListEl = productList.render();
+  constructor() {
+    this.render();
+  }
 
-    renderHook.append(cartEl);
-    renderHook.append(prodListEl);
+  render() {    
+    this.cart = new ShoppingCart('app');
+    new ProductList('app');
   }
 }
 
@@ -119,9 +181,12 @@ class App {
   static cart;
 
   static init() {
-    const shop = new Shop()
-    shop.render();
+    const shop = new Shop();
     this.cart = shop.cart;
+  }
+
+  static addProductToCart(product) {
+    this.cart.addProduct(product);
   }
 
   static addProductToCart(product) {
