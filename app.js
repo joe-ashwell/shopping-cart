@@ -1,10 +1,9 @@
 // Just used to group data together
 class Product {
 
-  constructor(title, imageURL, description, price) {
+  constructor(title, imageURL, price) {
     this.title = title;
     this.imageURL = imageURL;
-    this.description = description;
     this.price = price;
   }
 
@@ -130,19 +129,16 @@ class ProductList extends Component {
       new Product(
         `NULIAJUK // Abstract Whale Tail Acrylic Painting in Blue and Turquoise`,
         `https://i.etsystatic.com/24718322/r/il/3e7f63/2672457185/il_794xN.2672457185_ozhg.jpg`,
-        `'NULIAJUK' | An original acrylic painting on paper 42cmx29.7cm The painting will be wrapped securely to ensure it will arrive uncreased and safely for you to enjoy in it's new home. Please note that the frame is not included`,
         55.00
       ),
       new Product(
         `CARIBBEAN SEA // Original Abstract Acrylic Wave Painting in light blue`,
         `https://i.etsystatic.com/24718322/r/il/0990fe/2672518377/il_794xN.2672518377_ot04.jpg`,
-        `CARIBBEAN SEA' | An original acrylic painting on paper 42cmx29.7cm The painting will be wrapped securely to ensure it will arrive uncreased and safely for you to enjoy in it's new home. Please note that the frame is not included.`,
         50.00
       ),
       new Product(
         `North Sea // Blue Abstract Wave, Original Acryl Painting on Paper`,
         `https://i.etsystatic.com/24718322/r/il/91408e/2503773204/il_794xN.2503773204_cf6q.jpg`,
-        `'NORTH SEA' | An original acrylic painting on paper 29,5cmx39cm The painting will be wrapped securely to ensure it will arrive uncreased and safely for you to enjoy in it's new home. Please note that the frame is not included.`,
         25.00
       )
     ];
