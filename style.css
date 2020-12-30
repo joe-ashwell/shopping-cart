@@ -44,6 +44,7 @@ nav {
 
 .product-item {
   max-width: 30vw;
+  margin: 1rem;
 }
 
 .product-item:hover button {
@@ -83,4 +84,14 @@ nav {
     background-color: var(--color-blue);
     color: var(--color-white);
   }
+}
+
+div.shopping-basket {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+}
+
+div.basket {
+  margin-right: 1rem;
 }
