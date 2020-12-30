@@ -29,7 +29,12 @@ nav {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 4rem;
-  background-color: var(--color-white);
+  background-color: var(--color-gunmetal);
+  color: var(--color-lavender);
+}
+
+nav a {
+  color: var(--color-lavender);
 }
 
 /* Product list */
